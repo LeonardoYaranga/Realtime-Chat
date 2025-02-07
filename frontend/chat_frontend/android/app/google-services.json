@@ -1,0 +1,69 @@
+{
+  "project_info": {
+    "project_number": "340237548744",
+    "firebase_url": "https://kasaychi-community-default-rtdb.firebaseio.com",
+    "project_id": "kasaychi-community",
+    "storage_bucket": "kasaychi-community.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:340237548744:android:381683f8208df270d879fd",
+        "android_client_info": {
+          "package_name": "com.example.chat_frontend"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "340237548744-ji6bft3rvch3idvlneolb62iohe3d5jo.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBKB0oxZzMBKdpOVGc4vxaaImTavlZfL0Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "340237548744-ji6bft3rvch3idvlneolb62iohe3d5jo.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:340237548744:android:fff8aba1aae08b7ad879fd",
+        "android_client_info": {
+          "package_name": "kasaychi.community"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "340237548744-ji6bft3rvch3idvlneolb62iohe3d5jo.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBKB0oxZzMBKdpOVGc4vxaaImTavlZfL0Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "340237548744-ji6bft3rvch3idvlneolb62iohe3d5jo.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
