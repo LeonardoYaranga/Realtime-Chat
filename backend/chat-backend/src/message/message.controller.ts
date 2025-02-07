@@ -17,7 +17,7 @@ export class MessageController {
     const message = await this.firebaseService.saveMessage(remitente, receptor, texto);
 
     if (token) {
-      await this.firebaseService.sendNotification(token, `Nuevo mensaje de ${remitente}`, texto);
+      await this.firebaseService.sendNotification(token,remitente, texto);
     } else {
       console.warn("⚠️ No se encontró token FCM para el receptor");
     }

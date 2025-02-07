@@ -1,10 +1,14 @@
+// ignore_for_file: avoid_print
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:chat_frontend/firebase_options.dart';
 import './services/auth_service.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:firebase_messaging/firebase_messaging.dart' as fcm;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'chat_screen.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:firebase_messaging/firebase_messaging.dart' as fcm;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -19,22 +23,22 @@ void main() async {
 }
 
 // ✅ Maneja mensajes en segundo plano
-Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+Future<void> _firebaseMessagingBackgroundHandler(
+    fcm.RemoteMessage message) async {
   print("📩 Mensaje recibido en segundo plano: ${message.messageId}");
 }
 
 // ✅ Configura Firebase Messaging
 Future<void> setupFirebaseMessaging() async {
-  FirebaseMessaging messaging = FirebaseMessaging.instance;
+  fcm.FirebaseMessaging messaging = fcm.FirebaseMessaging.instance;
 
-  // ✅ Pedir permisos al usuario (iOS y Android)
-  NotificationSettings settings = await messaging.requestPermission(
+  fcm.NotificationSettings settings = await messaging.requestPermission(
     alert: true,
     badge: true,
     sound: true,
   );
 
-  if (settings.authorizationStatus == AuthorizationStatus.denied) {
+  if (settings.authorizationStatus == fcm.AuthorizationStatus.denied) {
     print("❌ El usuario denegó las notificaciones.");
     return;
   }
@@ -43,18 +47,9 @@ Future<void> setupFirebaseMessaging() async {
   String? token = await messaging.getToken();
   print("🔑 Token FCM del usuario: $token");
 
-  // ✅ Manejar mensajes cuando la app está abierta
-  FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-    print("📲 Mensaje recibido en primer plano: ${message.notification?.title}");
-  });
-
-  // ✅ Manejar notificaciones al hacer clic cuando la app está en segundo plano o cerrada
-  FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-    print("📬 Notificación tocada: ${message.notification?.title}");
-  });
-
   // ✅ Registrar el manejador de mensajes en segundo plano
-  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+  fcm.FirebaseMessaging.onBackgroundMessage(
+      _firebaseMessagingBackgroundHandler);
 }
 
 class MyApp extends StatelessWidget {
@@ -74,6 +69,8 @@ class MyApp extends StatelessWidget {
 }
 
 class AuthCheck extends StatelessWidget {
+  const AuthCheck({super.key});
+
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<User?>(
@@ -96,9 +93,16 @@ class AuthCheck extends StatelessWidget {
 class LoginScreen extends StatelessWidget {
   final AuthService authService = AuthService();
 
+  LoginScreen({super.key});
+
   Future<String?> getDeviceToken() async {
     String? token = await FirebaseMessaging.instance.getToken();
     print("📲 Token del dispositivo: $token");
+    if (token != null) {
+      // Aquí puedes enviar el token al backend y guardarlo en la base de datos
+      await authService.guardarTokenEnBackend(token);
+    }
+
     return token;
   }
 

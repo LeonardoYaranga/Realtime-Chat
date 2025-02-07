@@ -35,6 +35,13 @@ export class FirebaseService implements OnModuleDestroy {
       .set({ token }, { merge: true });
   }
 
+  // Método para actualizar el token del usuario en Firestore
+    async updateUserToken(email: string, token: string) {
+      const userRef = admin.firestore().collection('users').doc(email);
+      await userRef.set({ token }, { merge: true });
+    }
+  
+
   // async sendNotification(token: string, title: string, body: string) {
   //   const message = {
   //     notification: { title, body },
@@ -45,22 +52,33 @@ export class FirebaseService implements OnModuleDestroy {
   // }
 
   // Implementación del envío de notificaciones push
-  async sendNotification(token: string, title: string, body: string) {
-    const messagePayload: admin.messaging.Message = {
+  async sendNotification(remitente: string, receptor: string, texto: string) {
+    console.log('Enviando notificación a', receptor);
+    const userRef = admin.firestore().collection('users').doc(receptor);
+    const userDoc = await userRef.get();
+  
+    if (!userDoc.exists) {
+      throw new Error('El usuario no existe');
+    }
+  
+    const userData = userDoc.data();
+    if (!userData?.token) {
+      throw new Error('El usuario no tiene un token de FCM válido');
+    }
+  
+    const message = {
+      token: userData.token,
       notification: {
-        title: title,
-        body: body,
+        title: `Nuevo mensaje de ${remitente}`,
+        body: texto,
       },
-      token: token,
     };
-
+  
     try {
-      const response = await this.messaging.send(messagePayload);
-      console.log('Notificación enviada correctamente:', response);
-      return response;
+      await admin.messaging().send(message);
+      console.log('Notificación enviada correctamente');
     } catch (error) {
       console.error('Error al enviar notificación:', error);
-      throw error;
     }
   }
 
@@ -83,6 +101,8 @@ export class FirebaseService implements OnModuleDestroy {
       token: doc.data().token,
     }));
   }
+
+ 
 
   // Cleanup en caso de que NestJS se reinicie
   onModuleDestroy() {

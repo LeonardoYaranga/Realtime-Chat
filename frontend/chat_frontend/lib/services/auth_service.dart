@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
@@ -40,7 +42,7 @@ class AuthService {
   Future<void> sendTokenToBackend(String email, String token) async {
     final response = await http.post(
       Uri.parse(
-          "http://10.0.2.2:3000/auth/register"), // Usa 10.0.2.2 si es un emulador
+          "http://192.168.100.231:3000/auth/register"), // Usa 192.168.100.231 si es un emulador
       headers: {"Content-Type": "application/json"},
       body: jsonEncode({"email": email, "token": token}),
     );
@@ -51,4 +53,20 @@ class AuthService {
       print("Error al registrar usuario: ${response.body}");
     }
   }
+
+  Future<void> guardarTokenEnBackend(String token) async {
+  // Envía el token al backend
+  final response = await http.post(
+    Uri.parse("http://192.168.100.231:3000/auth/update-token"),
+    headers: {"Content-Type": "application/json"},
+    body: jsonEncode({"email": FirebaseAuth.instance.currentUser!.email, "token": token}),
+  );
+
+  if (response.statusCode == 200) {
+    print("Token guardado en el backend correctamente");
+  } else {
+    print("Error al guardar el token en el backend: ${response.body}");
+  }
+}
+
 }
