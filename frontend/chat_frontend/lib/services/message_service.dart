@@ -3,7 +3,7 @@
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-Future<void> sendMessage(String remitente, String receptor, String texto, String token) async {
+Future<void> sendMessage(String remitente, String receptor, String texto, String token) async {  //token del receptor
   final response = await http.post(
     Uri.parse("http://192.168.100.231:3000/message/send"),
     headers: {"Content-Type": "application/json"},

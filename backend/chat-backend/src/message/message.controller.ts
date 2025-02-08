@@ -11,16 +11,26 @@ export class MessageController {
     @Body('remitente') remitente: string,
     @Body('receptor') receptor: string,
     @Body('texto') texto: string,
-    @Body('token') token: string,  // Token FCM del receptor
+    @Body('token') token: string,
   ) {
-    // Guardar mensaje en Firestore
-    const message = await this.firebaseService.saveMessage(remitente, receptor, texto);
+    console.log(
+      `Mensaje recibido en backend: ${remitente} -> ${receptor}: ${texto}`,
+    );
+
+    const message = await this.firebaseService.saveMessage(
+      remitente,
+      receptor,
+      texto,
+    );
+    console.log(`📩 Mensaje guardado en Firestore:`, message);
 
     if (token) {
-      await this.firebaseService.sendNotification(token,remitente, texto);
+      console.log(`Enviando notificación a ${receptor} con token ${token}`);
+      await this.firebaseService.sendNotification(remitente, receptor, texto);
     } else {
-      console.warn("⚠️ No se encontró token FCM para el receptor");
+      console.warn('⚠️ No se encontró token FCM para el receptor');
     }
+
     return { success: true, message };
   }
 }

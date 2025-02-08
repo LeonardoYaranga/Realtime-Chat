@@ -82,17 +82,32 @@ export class FirebaseService implements OnModuleDestroy {
     }
   }
 
+  // async saveMessage(remitente: string, receptor: string, texto: string) {
+  //   const mensaje = {
+  //     remitente,
+  //     receptor,
+  //     texto,
+  //     hora: new Date().toISOString(),
+  //   };
+
+  //   await this.firestore.collection('mensajes').add(mensaje);
+  //   return mensaje;
+  // }
+
   async saveMessage(remitente: string, receptor: string, texto: string) {
-    const mensaje = {
+    const messageRef = this.firestore.collection("messages").doc();
+    const hora = admin.firestore.Timestamp.now();  // Guarda como Timestamp
+  
+    await messageRef.set({
       remitente,
       receptor,
       texto,
-      hora: new Date().toISOString(),
-    };
-
-    await this.firestore.collection('mensajes').add(mensaje);
-    return mensaje;
+      hora
+    });
+  
+    return messageRef.get();
   }
+  
   
   async getUsers() {
     const snapshot = await this.firestore.collection('users').get();

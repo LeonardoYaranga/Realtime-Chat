@@ -6,6 +6,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:rxdart/rxdart.dart';
+import 'package:rxdart/streams.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
@@ -28,41 +31,37 @@ class _ChatScreenState extends State<ChatScreen> {
     _listenMessages();
     loadUsers();
 
-    // 📩 Manejar notificaciones en primer plano
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       if (message.notification != null) {
         print(
             "📩 Notificación recibida en primer plano: ${message.notification!.title}");
 
-        // Mostrar SnackBar con la notificación
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-                "${message.notification!.title}: ${message.notification!.body}"),
-            duration: Duration(seconds: 5),
-            action: SnackBarAction(
-              label: 'Ver',
-              onPressed: () {
-                print("🔍 Ir al chat...");
-              },
-            ),
-          ),
+        Fluttertoast.showToast(
+          msg: "${message.notification!.title}: ${message.notification!.body}",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.TOP, // Aparece en la parte superior
+          backgroundColor: Colors.blueAccent,
+          textColor: Colors.white,
+          fontSize: 16.0,
         );
       }
     });
-
-    // 📬 Manejar notificaciones tocadas cuando la app estaba en segundo plano
-    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-      print("🚀 Notificación tocada: ${message.notification?.title}");
-    });
-    
   }
 
   void _listenMessages() {
     _firestore.collection("messages").snapshots().listen((snapshot) {
       setState(() {
-        messages = snapshot.docs.map((doc) => doc.data()).toList();
+        messages = snapshot.docs.map((doc) {
+          var data = doc.data();
+          return {
+            "texto": data["texto"],
+            "remitente": data["remitente"],
+            "receptor": data["receptor"],
+            "hora": (data["hora"] as Timestamp).toDate().toString()
+          };
+        }).toList();
       });
+      print("📩 Mensajes actualizados en la UI: $messages");
     });
   }
 
@@ -99,6 +98,7 @@ class _ChatScreenState extends State<ChatScreen> {
     if (user == null ||
         selectedUserEmail == null ||
         selectedUserToken == null) {
+      print("No hay usuario seleccionado para chatear");
       return;
     }
 
@@ -118,6 +118,29 @@ class _ChatScreenState extends State<ChatScreen> {
     } else {
       print("Error al enviar mensaje: ${response.body}");
     }
+  }
+
+  Stream<List<QuerySnapshot>> getChatMessagesStream() {
+    if (selectedUserEmail == null) {
+      print("No hay usuario seleccionado para ver mensajes");
+      return Stream.value([]);
+    }
+
+    var sentMessages = _firestore
+        .collection("messages")
+        .where("remitente", isEqualTo: FirebaseAuth.instance.currentUser?.email)
+        .where("receptor",
+            isEqualTo: selectedUserEmail) // Filtrar por receptor seleccionado
+        .snapshots();
+
+    var receivedMessages = _firestore
+        .collection("messages")
+        .where("remitente",
+            isEqualTo: selectedUserEmail) // Filtrar por remitente seleccionado
+        .where("receptor", isEqualTo: FirebaseAuth.instance.currentUser?.email)
+        .snapshots();
+
+    return CombineLatestStream.list([sentMessages, receivedMessages]);
   }
 
   @override
@@ -156,28 +179,60 @@ class _ChatScreenState extends State<ChatScreen> {
             }).toList(),
           ),
           Expanded(
-            child: StreamBuilder(
-              stream: _firestore.collection("messages").snapshots(),
-              builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-                if (!snapshot.hasData) {
-                  return Center(child: CircularProgressIndicator());
-                }
+              child: StreamBuilder(
+            stream: getChatMessagesStream(),
+            builder: (context, AsyncSnapshot<List<QuerySnapshot>> snapshot) {
+              if (!snapshot.hasData) {
+                return Center(child: CircularProgressIndicator());
+              }
 
-                var messages = snapshot.data!.docs;
+              var messages =
+                  snapshot.data!.expand((snapshot) => snapshot.docs).toList();
+              messages.sort((a, b) =>
+                  b["hora"].compareTo(a["hora"])); // Ordenar por fecha
 
-                return ListView.builder(
-                  itemCount: messages.length,
-                  itemBuilder: (context, index) {
-                    var message = messages[index];
-                    return ListTile(
-                      title: Text(message['texto']),
-                      subtitle: Text("De: ${message['remitente']}"),
-                    );
-                  },
-                );
-              },
-            ),
-          ),
+              return ListView.builder(
+                reverse: true,
+                itemCount: messages.length,
+                itemBuilder: (context, index) {
+                  var message = messages[index];
+                  bool isMe = message['remitente'] ==
+                      FirebaseAuth.instance.currentUser?.email;
+
+                  return Align(
+                    alignment:
+                        isMe ? Alignment.centerRight : Alignment.centerLeft,
+                    child: Container(
+                      padding: EdgeInsets.all(10),
+                      margin: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                      decoration: BoxDecoration(
+                        color: isMe ? Colors.blue[200] : Colors.grey[300],
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: isMe
+                            ? CrossAxisAlignment.end
+                            : CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            message['texto'],
+                            style: TextStyle(fontSize: 16),
+                          ),
+                          SizedBox(height: 5),
+                          Text(
+                            "De: ${message['remitente']}",
+                            style:
+                                TextStyle(fontSize: 12, color: Colors.black54),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              );
+            },
+          )),
+
           // Aquí van los mensajes
           Padding(
             padding: const EdgeInsets.all(8.0),
