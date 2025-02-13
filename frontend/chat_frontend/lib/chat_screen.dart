@@ -103,7 +103,7 @@ class _ChatScreenState extends State<ChatScreen> {
     }
 
     final response = await http.post(
-      Uri.parse("http://192.168.100.231:3000/message/send"),
+      Uri.parse("http://localhost:3000/message/send"),
       headers: {"Content-Type": "application/json"},
       body: jsonEncode({
         "remitente": user.email,
