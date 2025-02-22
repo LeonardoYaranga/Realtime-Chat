@@ -5,7 +5,6 @@ import { FirebaseService } from '../firebase/firebase.service';
 export class MessageController {
   constructor(private readonly firebaseService: FirebaseService) {}
 
-  // 📩 Endpoint para enviar un mensaje y notificar al usuario receptor
   @Post('send')
   async sendMessage(
     @Body('remitente') remitente: string,
@@ -22,13 +21,13 @@ export class MessageController {
       receptor,
       texto,
     );
-    console.log(`📩 Mensaje guardado en Firestore:`, message);
+    console.log(`Mensaje guardado en Firestore:`, message);
 
     if (token) {
       console.log(`Enviando notificación a ${receptor} con token ${token}`);
       await this.firebaseService.sendNotification(remitente, receptor, texto);
     } else {
-      console.warn('⚠️ No se encontró token FCM para el receptor');
+      console.warn('No se encontró token FCM para el receptor');
     }
 
     return { success: true, message };

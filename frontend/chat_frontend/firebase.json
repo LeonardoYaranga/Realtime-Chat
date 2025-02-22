@@ -1,1 +1,22 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"kasaychi-community","appId":"1:340237548744:android:381683f8208df270d879fd","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"kasaychi-community","configurations":{"android":"1:340237548744:android:381683f8208df270d879fd","web":"1:340237548744:web:2cfbd5f3af4a660cd879fd"}}}}}}
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "kasaychi-community",
+          "appId": "1:340237548744:android:381683f8208df270d879fd",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "kasaychi-community",
+          "configurations": {
+            "android": "1:340237548744:android:381683f8208df270d879fd",
+            "web": "1:340237548744:web:2cfbd5f3af4a660cd879fd"
+          }
+        }
+      }
+    }
+  }
+}

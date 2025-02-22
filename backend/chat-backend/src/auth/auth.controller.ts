@@ -12,7 +12,6 @@ export class AuthController {
       throw new Error('Faltan datos');
     }
 
-    // Guardar en Firebase Firestore
     await this.firebaseService.saveUserToken(email, token);
     return { message: 'Usuario registrado con éxito' };
   }
@@ -25,8 +24,6 @@ async updateToken(@Body() body) {
   await this.firebaseService.updateUserToken(email, token);
   return { message: 'Token actualizado' };
 }
-
-  
   @Get('users')
   async getUsers() {
     return await this.firebaseService.getUsers();

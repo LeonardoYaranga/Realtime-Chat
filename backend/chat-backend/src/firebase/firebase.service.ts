@@ -35,22 +35,11 @@ export class FirebaseService implements OnModuleDestroy {
       .set({ token }, { merge: true });
   }
 
-  // Método para actualizar el token del usuario en Firestore
     async updateUserToken(email: string, token: string) {
       const userRef = admin.firestore().collection('users').doc(email);
       await userRef.set({ token }, { merge: true });
     }
   
-
-  // async sendNotification(token: string, title: string, body: string) {
-  //   const message = {
-  //     notification: { title, body },
-  //     token,
-  //   };
-
-  //   return this.messaging.send(message);
-  // }
-
   // Implementación del envío de notificaciones push
   async sendNotification(remitente: string, receptor: string, texto: string) {
     console.log('Enviando notificación a', receptor);
@@ -82,18 +71,6 @@ export class FirebaseService implements OnModuleDestroy {
     }
   }
 
-  // async saveMessage(remitente: string, receptor: string, texto: string) {
-  //   const mensaje = {
-  //     remitente,
-  //     receptor,
-  //     texto,
-  //     hora: new Date().toISOString(),
-  //   };
-
-  //   await this.firestore.collection('mensajes').add(mensaje);
-  //   return mensaje;
-  // }
-
   async saveMessage(remitente: string, receptor: string, texto: string) {
     const messageRef = this.firestore.collection("messages").doc();
     const hora = admin.firestore.Timestamp.now();  // Guarda como Timestamp
@@ -107,7 +84,6 @@ export class FirebaseService implements OnModuleDestroy {
   
     return messageRef.get();
   }
-  
   
   async getUsers() {
     const snapshot = await this.firestore.collection('users').get();

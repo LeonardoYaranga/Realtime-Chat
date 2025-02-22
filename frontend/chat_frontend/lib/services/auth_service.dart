@@ -42,7 +42,7 @@ class AuthService {
   Future<void> sendTokenToBackend(String email, String token) async {
     final response = await http.post(
       Uri.parse(
-          "http://192.168.100.231:3000/auth/register"), // Usa 192.168.100.231 si es un emulador
+          "http://192.168.100.231:3000/auth/register"), // si e sun  dispositivo fisico, cambiar la ip por la de la maquina
       headers: {"Content-Type": "application/json"},
       body: jsonEncode({"email": email, "token": token}),
     );
